@@ -147,6 +147,11 @@ namespace WPF_ToDoList
         //Delete the selected Task
         private void btnDeleteTask_Click(object sender, RoutedEventArgs e)
         {
+            if (string.IsNullOrEmpty(lb_selectedItem))
+            {
+                MessageBox.Show("Please select a task to delete.", "Delete Task", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
             //get the selected tab item
             TabViewModel tvm = tabControlName.SelectedItem as TabViewModel;
 
