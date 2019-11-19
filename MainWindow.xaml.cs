@@ -1,21 +1,11 @@
-﻿using Microsoft.Office.Interop.Excel;
-using Microsoft.Win32;
+﻿using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-using Microsoft.Office.Interop;
 using System.IO;
 using System.ComponentModel;
 
@@ -29,47 +19,43 @@ namespace WPF_ToDoList
 
     public partial class TabItemViewModel
     {
-        public string Title { get; set; }
+        public string TaskName { get; set; }
         public SolidColorBrush background { get; set; }
-        //public string Detail { get; set; }
     }
 
-    
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
     public partial class MainWindow : System.Windows.Window
     {
 
-        private string ExportImportFileName = "ToDoList_ExportImport.xls";
+        private string exportImportFileName = "ToDoList_ExportImport.xls";
         public ObservableCollection<TabViewModel> tabViewModels { get; set; }
 
-        //List<string> list_content = new List<string>();
         public MainWindow()
         {
             InitializeComponent();
 
             tabViewModels = new ObservableCollection<TabViewModel>();
 
-            string path = System.AppDomain.CurrentDomain.BaseDirectory + ExportImportFileName;
+            string path = System.AppDomain.CurrentDomain.BaseDirectory + exportImportFileName;
             if (File.Exists(path))
             {
                 this.Cursor = Cursors.Wait;
 
+                ///Import the last status if any
                 ImportFromExcel(path);
 
                 this.Cursor = Cursors.Arrow;
             }
         }
         
+        //Add category
         private void btnAddTab_Click(object sender, RoutedEventArgs e)
         {
 
             string tabname = string.Empty;
             TabProperty dlg = new TabProperty();
-
-            // get existing header text
-            //dlg.txtTitle.Text = tab.Header.ToString();
 
             if (dlg.ShowDialog() == true)
             {
@@ -77,13 +63,16 @@ namespace WPF_ToDoList
                 tabname = dlg.txtTitle.Text.Trim();
             }
 
-            tabViewModels.Add(new TabViewModel { Name = tabname, Collection = new ObservableCollection<TabItemViewModel> { new TabItemViewModel { Title = "", background = Brushes.Transparent } } }); 
+            //add the new tab
+            tabViewModels.Add(new TabViewModel { Name = tabname, Collection = new ObservableCollection<TabItemViewModel> { new TabItemViewModel { TaskName = "", background = Brushes.Transparent } } }); 
 
             DataContext = tabViewModels;
 
+            //point to new tab added
             tabControlName.SelectedIndex = tabControlName.Items.Count -1;
         }
 
+        //Delete the selected Tab
         private void btnDeleteTab_Click(object sender, RoutedEventArgs e)
         {
             TabViewModel tvm = tabControlName.SelectedItem as TabViewModel;
@@ -91,9 +80,9 @@ namespace WPF_ToDoList
             tabViewModels.Remove(tvm);
 
             DataContext = tabViewModels;
-
         }
 
+        //Add the task in selected Category/tab
         private void btnAddTask_Click(object sender, RoutedEventArgs e)
         {
             string task = txt_Task.Text;
@@ -114,58 +103,62 @@ namespace WPF_ToDoList
         {
             int index = tabControlName.SelectedIndex;
 
-            List<TabItemViewModel> list_content = new List<TabItemViewModel>();
+            //get the current Tab context 
+            List<TabItemViewModel> tabContents = new List<TabItemViewModel>();
             foreach (TabItemViewModel item in tvm.Collection)
             {
-                if (item.Title.Length > 0)
+                if (item.TaskName.Length > 0)
                 {
                     TabItemViewModel tvi = new TabItemViewModel();
-                    tvi.Title = item.Title;
+                    tvi.TaskName = item.TaskName;
                     tvi.background = item.background;
 
-                    list_content.Add(tvi);
+                    tabContents.Add(tvi);
                 }
             }
 
             //new task
             TabItemViewModel tvi2 = new TabItemViewModel();
-            tvi2.Title = task;
+            tvi2.TaskName = task;
             tvi2.background = Brushes.Transparent;
 
-            //new item
-            list_content.Add(tvi2);
+            //add the new item to the contents list
+            tabContents.Add(tvi2);
 
+            //Remove the tab and add the new list
             tabViewModels.Remove(tvm);
 
             ObservableCollection<TabItemViewModel> obs = new ObservableCollection<TabItemViewModel>();
 
-            foreach (TabItemViewModel cont in list_content)
+            foreach (TabItemViewModel cont in tabContents)
             {   
                 obs.Add(cont);
             }
 
+            //add the tab in the same index
             tabViewModels.Insert(index, new TabViewModel { Name = tvm.Name, Collection = obs });
 
-            //tabViewModels.
             DataContext = tabViewModels;
 
+            //select the same tab
             tabControlName.SelectedIndex = index;
-
         }
 
+        //Delete the selected Task
         private void btnDeleteTask_Click(object sender, RoutedEventArgs e)
         {
-            //selected tab
+            //get the selected tab item
             TabViewModel tvm = tabControlName.SelectedItem as TabViewModel;
 
+            //get the list of contents from the tab
             List<TabItemViewModel> list_content = new List<TabItemViewModel>();
             foreach (TabItemViewModel item in tvm.Collection)
             {
                 //remove the selected item
-                if (item.Title.Length > 0 && item.Title != lb_selectedItem)
+                if (item.TaskName.Length > 0 && item.TaskName != lb_selectedItem)
                 {
                     TabItemViewModel tiv = new TabItemViewModel();
-                    tiv.Title = item.Title;
+                    tiv.TaskName = item.TaskName;
                     tiv.background = item.background;
                     
                     list_content.Add(tiv);
@@ -174,6 +167,7 @@ namespace WPF_ToDoList
 
             int index = tabControlName.SelectedIndex;
 
+            //remove the task
             tabViewModels.Remove(tvm);
 
             ObservableCollection<TabItemViewModel> obs = new ObservableCollection<TabItemViewModel>();
@@ -182,16 +176,16 @@ namespace WPF_ToDoList
                 obs.Add(cont);
             }
 
+            //update the new list of contents in the tabcontrol
             tabViewModels.Insert(index, new TabViewModel { Name = tvm.Name, Collection = obs });
             
             //tabViewModels.
             DataContext = tabViewModels;
 
-            //tabControlName.SelectedItem = tvm;
             tabControlName.SelectedIndex = index;
-
         }
 
+        //Import the all the categories from Excel
         private void btnImport_Click(object sender, RoutedEventArgs e)
         {
             OpenFileDialog openFileDialog1 = new OpenFileDialog();
@@ -208,6 +202,7 @@ namespace WPF_ToDoList
             }
 
         }
+
        private void ImportFromExcel(string path)
         {
             try
@@ -265,7 +260,7 @@ namespace WPF_ToDoList
                         if (d.Tab == tab)
                         {
                             TabItemViewModel tiv = new TabItemViewModel();
-                            tiv.Title = d.Task;
+                            tiv.TaskName = d.Task;
                             if (d.Status == "Completed")
                                 tiv.background = Brushes.Green;
                             else
@@ -297,13 +292,11 @@ namespace WPF_ToDoList
                 GC.Collect();
                 GC.WaitForPendingFinalizers();
                 GC.Collect();
-                //GC.WaitForFullGCComplete();
                 GC.WaitForPendingFinalizers();
             }
         }
 
-
-
+        //Export the current catories
         private void btnExport_Click(object sender, RoutedEventArgs e)
         {
             SaveFileDialog saveDlg = new SaveFileDialog();
@@ -338,6 +331,7 @@ namespace WPF_ToDoList
 
                 xlWorkSheet = (Microsoft.Office.Interop.Excel.Worksheet)xlWorkBook.Worksheets.get_Item(1);
 
+                //suppress the alert if false
                 if (!DisplayAlert)
                     xlApp.DisplayAlerts = false;
 
@@ -348,12 +342,11 @@ namespace WPF_ToDoList
                 int row = 2;
                 foreach (TabViewModel tvm in tabViewModels)
                 {   
-                    //xlWorkSheet.Name = tvm.Name;
                     foreach (TabItemViewModel tivm in tvm.Collection)
                     {
                         xlWorkSheet.Cells[row, 1] = tvm.Name;
 
-                        xlWorkSheet.Cells[row, 2] = tivm.Title;
+                        xlWorkSheet.Cells[row, 2] = tivm.TaskName;
                         if (tivm.background == Brushes.Transparent)
                             xlWorkSheet.Cells[row, 3] = "InProgress";
                         else
@@ -362,9 +355,6 @@ namespace WPF_ToDoList
                         row++;
                     }                    
                 }
-
-                //if(!File.Exists(path) )
-                //    File.Create(path);
 
                 xlWorkBook.SaveAs(path);
                 xlWorkBook.Saved = true;
@@ -386,6 +376,7 @@ namespace WPF_ToDoList
             }
         }
 
+        //Toggle the selected item as Done / UnDone
         private void btnToggleTask_Click(object sender, RoutedEventArgs e)
         {
             if (string.IsNullOrEmpty(lb_selectedItem))
@@ -396,11 +387,9 @@ namespace WPF_ToDoList
             List<TabItemViewModel> list_content = new List<TabItemViewModel>();
             foreach (TabItemViewModel item in tvm.Collection)
             {
-                //TabItemViewModel tiv = new TabItemViewModel();
                 //remove the selected item
-                if (item.Title == lb_selectedItem)
+                if (item.TaskName == lb_selectedItem)
                 {  
-                    //tiv.Title = item.Title;
                     if (item.background == Brushes.Green)
                         item.background = Brushes.Transparent;
                     else
@@ -437,7 +426,7 @@ namespace WPF_ToDoList
                 lstBox = sender as System.Windows.Controls.ListBox;
 
                 if (lstBox.SelectedItem != null)
-                    lb_selectedItem = (lstBox.SelectedItem as TabItemViewModel).Title;
+                    lb_selectedItem = (lstBox.SelectedItem as TabItemViewModel).TaskName;
             }
             catch (Exception ex)
             {
@@ -446,9 +435,10 @@ namespace WPF_ToDoList
 
         }
 
+        //Export the current data to Excel 
         private void Window_Closing(object sender, CancelEventArgs e)
         {
-            string path  = System.AppDomain.CurrentDomain.BaseDirectory+ ExportImportFileName;
+            string path  = System.AppDomain.CurrentDomain.BaseDirectory+ exportImportFileName;
 
             this.Cursor = Cursors.Wait;
 

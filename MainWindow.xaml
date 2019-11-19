@@ -6,10 +6,7 @@
         xmlns:local="clr-namespace:WPF_ToDoList"
         mc:Ignorable="d" Closing="Window_Closing" 
         Title="To-Do List" Height="450" Width="700">
-    <!--<Window.DataContext>
-        <local:MainWindowViewModel/>
-    </Window.DataContext>-->
-
+  
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="40*"/>
@@ -67,7 +64,7 @@
                     <ListBox Name ="lb_Name" ItemsSource="{Binding Collection}"  SelectionChanged="ListBox_SelectionChanged">
                         <ListBox.ItemTemplate>
                             <DataTemplate>
-                                <Label Content="{Binding Title}"  Name="lbl_Title" Background="{Binding background}" />
+                                <Label Content="{Binding TaskName}"  Name="lbl_TaskName" Background="{Binding background}" />
                             </DataTemplate>
                         </ListBox.ItemTemplate>
                     </ListBox>
