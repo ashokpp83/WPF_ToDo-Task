@@ -1,0 +1,114 @@
+﻿<Window x:Class="WPF_ToDoList.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:WPF_ToDoList"
+        mc:Ignorable="d" Closing="Window_Closing" 
+        Title="To-Do List" Height="450" Width="700">
+    <!--<Window.DataContext>
+        <local:MainWindowViewModel/>
+    </Window.DataContext>-->
+
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="40*"/>
+            <ColumnDefinition Width="60*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="60" />
+            <RowDefinition Height="100" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="10" />
+        </Grid.RowDefinitions>
+        <Grid Grid.Column="1" Grid.Row="0">
+            <StackPanel Orientation="Horizontal">
+                <Button
+                    Margin="10,10,10,10"
+                    Content="Add Catagory"
+                    Click="btnAddTab_Click"
+                    Command="{Binding AddTab}"
+                    Height="30" Width="80"
+                    VerticalAlignment="center" />
+                <Button
+                    Margin="10,10,10,10"
+                    Content="Delete Catagory"
+                    Click="btnDeleteTab_Click"
+                    Command="{Binding DeleteTab}"
+                    Height="30" Width="100"
+                    VerticalAlignment="Center" />
+                <Button Margin="10,10,10,10"
+                    Content="Export"
+                    Click="btnExport_Click" ToolTip="Export by catagories"
+                    Command="{Binding Export}"
+                    Height="30" Width="70"
+                    VerticalAlignment="Center" />
+                <Button Margin="10,10,10,10"
+                    Content="Import"
+                    Click="btnImport_Click" ToolTip="Import by catagories"
+                    Command="{Binding Import}"
+                    Height="30" Width="70"
+                    VerticalAlignment="Center" />
+            </StackPanel>
+        </Grid>
+
+        <TabControl Name="tabControlName"  ItemsSource="{Binding}" Margin="10,10,10,10" Grid.Column="1" SelectedIndex="0"  Grid.Row="1" Grid.RowSpan="3">
+            <TabControl.ItemContainerStyle>
+                <Style TargetType="{x:Type TabItem}">
+                    <Setter Property="Header">
+                        <Setter.Value>
+                            <Binding Path="Name"/>
+                        </Setter.Value>
+                    </Setter>
+                </Style>
+            </TabControl.ItemContainerStyle>
+            <TabControl.ContentTemplate>
+                <DataTemplate>
+                    <ListBox Name ="lb_Name" ItemsSource="{Binding Collection}"  SelectionChanged="ListBox_SelectionChanged">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <Label Content="{Binding Title}"  Name="lbl_Title" Background="{Binding background}" />
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                </DataTemplate>
+            </TabControl.ContentTemplate>
+        </TabControl>
+        <StackPanel Orientation="Horizontal" Grid.Column="0" Grid.Row=" 1">
+           
+                <TextBox
+                    Name="txt_Task" Margin="10,10,10,10"
+                    ToolTip=" Please enter the task to add on the Selected category"
+                    Height="50" Width="160" TextWrapping="Wrap"
+                    VerticalAlignment="Center" />
+                
+                <Button
+                    Content="Add Task" Margin="10,10,10,10"
+                    Click="btnAddTask_Click"
+                    Command="{Binding AddTask}"
+                    Height="30" Width="80"
+                    VerticalAlignment="Center" Grid.Column="0"  Grid.Row=" 0"/>
+                </StackPanel>
+           
+           
+        <StackPanel Orientation="Vertical" Grid.Column="0"  Grid.Row=" 2">
+            <Button Margin="20,20,20,20"
+                    Content="Toggle Task"
+                    Click="btnToggleTask_Click" ToolTip="Please selet the task to Mark as Complete/Not Complete"
+                    Command="{Binding ToggleTask}"
+                    Height="30" Width="80"
+                    VerticalAlignment="Center" />       
+            <Button Margin="20,10,20,20"
+                    Content="Delete Task"
+                    Click="btnDeleteTask_Click" ToolTip="Please Select the task to Delete"
+                    Command="{Binding DeleteTask}"
+                    Height="30" Width="80"
+                    VerticalAlignment="Center" />
+            
+                </StackPanel>
+        <StackPanel Orientation="Horizontal" Grid.Column="1"  Grid.Row=" 3">
+            
+
+        </StackPanel>
+    </Grid>
+</Window>
